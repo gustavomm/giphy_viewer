@@ -1,7 +1,8 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
+import 'package:http/http.dart' as http
+import 'package:giphy_viewer/ui/gif_page.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -62,6 +63,7 @@ class _HomePageState extends State<HomePage> {
                 onSubmitted: (text) {
                   setState(() {
                     _search = text;
+                    _offset = 0;
                   });
                 },
               ),
@@ -79,7 +81,7 @@ class _HomePageState extends State<HomePage> {
                             alignment: Alignment.center,
                             child: CircularProgressIndicator(
                               valueColor:
-                                  AlwaysStoppedAnimation<Color>(Colors.white),
+                              AlwaysStoppedAnimation<Color>(Colors.white),
                               strokeWidth: 5.0,
                             ));
                       default:
@@ -95,7 +97,6 @@ class _HomePageState extends State<HomePage> {
   }
 
 
-
   Widget _createGifTable(BuildContext context, AsyncSnapshot snapshot) {
     return GridView.builder(
       padding: EdgeInsets.all(10.0),
@@ -103,30 +104,34 @@ class _HomePageState extends State<HomePage> {
           crossAxisCount: 2, crossAxisSpacing: 10.0, mainAxisSpacing: 10.0),
       itemCount: snapshot.data["data"].length + 1,
       itemBuilder: (context, index) {
-        if(_search == null || index < snapshot.data["data"].length) {
+        if (_search == null || index < snapshot.data["data"].length) {
           return GestureDetector(
             child: Image.network(
                 snapshot.data["data"][index]["images"]["fixed_height"]["url"],
                 height: 300.0,
                 fit: BoxFit.cover),
+            onTap: () {
+              Navigator.push(context, MaterialPageRoute(
+                  builder: (context) => GifPage(snapshot.data["data"][index])));
+            },
           );
         } else {
           return Container(
-            child: GestureDetector(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  Icon(Icons.add, color: Colors.white, size: 70.0),
-                  Text("Carregar mais...",
-                  style: TextStyle(color: Colors.white, fontSize: 22.0))
-                ],
-              ),
-              onTap: (){
-                setState(() {
-                  _offset += 19;
-                });
-              },
-            )
+              child: GestureDetector(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    Icon(Icons.add, color: Colors.white, size: 70.0),
+                    Text("Carregar mais...",
+                        style: TextStyle(color: Colors.white, fontSize: 22.0))
+                  ],
+                ),
+                onTap: () {
+                  setState(() {
+                    _offset += 19;
+                  });
+                },
+              )
           );
         }
       },
